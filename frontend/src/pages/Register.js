@@ -1,5 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useSelector, useDispatch } from "react-redux";
+import { registerUser, reset } from "../features/auth/authSlice";
+import Spinner from "../components/Spinner";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -8,22 +13,48 @@ const Register = () => {
         password: "",
         password2: "",
     });
-
     const { name, email, password, password2 } = formData;
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const { user, isLoading, isSuccess, isError, message } = useSelector(
+        state => state.auth
+    );
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(message);
+        }
+        if (isSuccess || user) {
+            navigate("/");
+        }
+        dispatch(reset());
+    }, [isError, message, user, isSuccess, dispatch, navigate]);
+
     const onChange = e => {
-        setFormData(prevData => {
-            return {
-                ...prevData,
-                [e.target.name]: e.target.value,
-            };
-        });
+        setFormData(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }));
     };
 
     const onSubmit = e => {
         e.preventDefault();
-        console.log(formData);
+
+        if (password !== password2) {
+            toast.error("Passwords do not match.");
+        } else {
+            const userData = {
+                name,
+                email,
+                password,
+            };
+            dispatch(registerUser(userData));
+        }
     };
+
+    // if (isLoading) return <Spinner />;
 
     return (
         <>
@@ -81,8 +112,12 @@ const Register = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <button type="submit" className="btn btn-block">
-                            Submit
+                        <button
+                            type="submit"
+                            className="btn btn-block"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Registering user..." : "Register"}
                         </button>
                     </div>
                 </form>

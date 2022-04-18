@@ -151,6 +151,11 @@ h3 {
     justify-content: center;
 }
 
+.btn:disabled {
+    background-color: gray;
+    border: 1px solid gray;
+}
+
 .btn svg {
     margin-right: 8px;
 }
@@ -211,5 +216,14 @@ h3 {
 
     .heading p {
         font-size: 1.5rem;
+    }
+
+    .goals {
+        display: block;
+    }
+    .form,
+    .content {
+        width: 90%;
+        margin: 0 auto;
     }
 }
