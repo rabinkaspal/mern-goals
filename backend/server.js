@@ -1,11 +1,12 @@
 const express = require("express");
-const { errorHandler } = require("../middleware/errorMiddleware");
+const { errorHandler } = require("./middleware/errorMiddleware");
 const colors = require("colors");
 const dotenv = require("dotenv").config();
 const connectDB = require("./config/db");
 
 const PORT = process.env.PORT || 3000;
 const goalRoutes = require("./routes/goalRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 connectDB();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/goals", goalRoutes);
+app.use("/api/users", userRoutes);
 app.use("/", (req, res) => res.send({ message: "Invalid route." }));
 
 app.use(errorHandler);
