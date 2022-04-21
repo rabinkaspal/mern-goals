@@ -5,19 +5,21 @@ import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+// goal thunks and reset function
 import { getAllGoals, deleteGoal, reset } from "../features/goals/goalsSlice";
 
 const Dashboard = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    //get user from state
+    const { user } = useSelector(state => state.auth);
+
+    //get goals from state
+    //values will be populated when getAllGoals() is fulfilled
     const { goals, isLoading, isError, message } = useSelector(
         state => state.goals
     );
-    const navigate = useNavigate();
-    const { user } = useSelector(state => state.auth);
-
-    const removeGoal = goalId => {
-        dispatch(deleteGoal(goalId));
-    };
 
     useEffect(() => {
         if (isError) {
@@ -28,12 +30,18 @@ const Dashboard = () => {
         } else {
             dispatch(getAllGoals());
         }
-
+        //reset variables on component dismount
         return () => {
             dispatch(reset());
         };
     }, [user, navigate, isError, message, dispatch]);
 
+    //function sent as props to GoalItem component
+    const removeGoal = goalId => {
+        dispatch(deleteGoal(goalId));
+    };
+
+    //Show spinner if goals are being loaded from server
     if (isLoading) return <Spinner />;
 
     return (

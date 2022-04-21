@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import goalService from "./goalService";
+import { getErrorMessageStr } from "../utils/StringUtils";
 
 const initialState = {
     goals: [],
@@ -17,14 +18,7 @@ export const createGoal = createAsyncThunk(
             const token = thunkAPI.getState().auth.user.token;
             return await goalService.createGoal(goalData, token);
         } catch (error) {
-            const message =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-            console.log(message);
-            return thunkAPI.rejectWithValue(message);
+            return thunkAPI.rejectWithValue(getErrorMessageStr(error));
         }
     }
 );
@@ -37,13 +31,7 @@ export const getAllGoals = createAsyncThunk(
             const token = thunkAPI.getState().auth.user.token;
             return await goalService.getAllGoals(token);
         } catch (error) {
-            const message =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-            return thunkAPI.rejectWithValue(message);
+            return thunkAPI.rejectWithValue(getErrorMessageStr(error));
         }
     }
 );
@@ -54,15 +42,11 @@ export const deleteGoal = createAsyncThunk(
     async (goalId, thunkAPI) => {
         try {
             const token = thunkAPI.getState().auth.user.token;
+            //object being returned will have and id prop {id: 'asd797fas9d8fa9sd8f9a8sdf'}
+            //passed as payload on the action to the reducer
             return await goalService.deleteGoal(goalId, token);
         } catch (error) {
-            const message =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-            return thunkAPI.rejectWithValue(message);
+            return thunkAPI.rejectWithValue(getErrorMessageStr(error));
         }
     }
 );
@@ -71,6 +55,7 @@ export const goalsSlice = createSlice({
     name: "goal",
     initialState,
     reducers: {
+        //non async function
         reset: state => initialState,
     },
     extraReducers: builder => {
@@ -107,6 +92,8 @@ export const goalsSlice = createSlice({
             .addCase(deleteGoal.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isSuccess = true;
+                //filter goals array in state to exclude
+                //the one with the id passed from deleteGoal() thunk
                 state.goals = state.goals.filter(
                     goal => goal._id !== action.payload.id
                 );

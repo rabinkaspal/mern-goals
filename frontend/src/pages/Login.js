@@ -4,9 +4,19 @@ import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser, reset } from "../features/auth/authSlice";
-import Spinner from "../components/Spinner";
+// import Spinner from "../components/Spinner";
 
 const Login = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    //fetch logged in user from state
+    //values populated after loginUser() is fulfilled
+    const { user, isLoading, isSuccess, isError, message } = useSelector(
+        state => state.auth
+    );
+
+    //form inputs
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -14,23 +24,18 @@ const Login = () => {
 
     const { email, password } = formData;
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const { user, isLoading, isSuccess, isError, message } = useSelector(
-        state => state.auth
-    );
-
     useEffect(() => {
         if (isError) {
             toast.error(message);
         }
         if (isSuccess || user) {
+            //go to dashboard if user has been authenticated
             navigate("/");
         }
         dispatch(reset());
     }, [isError, message, user, isSuccess, dispatch, navigate]);
 
+    //form onchange function
     const onChange = e => {
         setFormData(prevData => {
             return {

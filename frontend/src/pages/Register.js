@@ -4,9 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { registerUser, reset } from "../features/auth/authSlice";
-import Spinner from "../components/Spinner";
+// import Spinner from "../components/Spinner";
 
 const Register = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    //values populated when registerUser() is fulfilled
+    const { user, isLoading, isSuccess, isError, message } = useSelector(
+        state => state.auth
+    );
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -14,13 +22,6 @@ const Register = () => {
         password2: "",
     });
     const { name, email, password, password2 } = formData;
-
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const { user, isLoading, isSuccess, isError, message } = useSelector(
-        state => state.auth
-    );
 
     useEffect(() => {
         if (isError) {
@@ -39,7 +40,7 @@ const Register = () => {
         }));
     };
 
-    const onSubmit = e => {
+    const onSubmit = async e => {
         e.preventDefault();
 
         if (password !== password2) {
